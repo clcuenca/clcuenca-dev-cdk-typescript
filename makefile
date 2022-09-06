@@ -8,7 +8,7 @@
 compiler:=tsc
 control:=git
 target:=clcuenca-dev
-message?:=Re-Commit
+message?=Re-Commit
 branch?=main
 hub_origin:=origin
 aws_origin:=aws-origin
@@ -19,7 +19,7 @@ aws_origin:=aws-origin
 $(target):
 	clear && reset
 	$(compiler)
-	$(control) add *
-	$(control) commit -m "$(message)"
+	$(control) add * > /dev/null 2&>1
+	$(control) commit -m "$(message)" > /dev/null 2&>1
 	$(control) push -u $(hub_origin) $(branch)
-	$(control) push -u $(aws_origin) $(branch)
+	$(control) push -u $(aws_origin) $(branch) && rm 1

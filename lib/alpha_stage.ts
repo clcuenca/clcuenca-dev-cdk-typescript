@@ -6,6 +6,9 @@
  */
 
 import { Construct, Stage } from '@aws-cdk/core'
+import { HostedZoneStack } from './hosted_zone_stack'
+import { CertificateStack } from './certificate_stack'
+import { ARecordStack } from './a_record_stack'
 import { Constants } from './constants'
 
 /// ----------------
@@ -23,6 +26,13 @@ export interface AlphaStageProps {
 
 export class AlphaStage extends Stage {
 
+    /// ---------------
+    /// Private Members
+
+    private readonly hostedZoneStack:   HostedZoneStack     ;
+    private readonly certificateStack:  CertificateStack    ;
+    private readonly recordStack:       ARecordStack        ;
+
     /// -----------
     /// Constructor
 
@@ -31,6 +41,29 @@ export class AlphaStage extends Stage {
             account:    props.account,
             region:     props.region
         }});
+
+        this.hostedZoneStack = new HostedZoneStack(this, {
+            account:        props.account,
+            region:         props.region,
+            hostedZoneId:   Constants.Route53.HostedZone.Id,
+            zoneName:       Constants.Domain
+        });
+
+        this.certificateStack = new CertificateStack(this, {
+            account:        props.account,
+            region:         props.region,
+            domain:         Constants.SiteDomain,
+            certificateId:  Constants.ACM.Certificate.Id
+        });
+
+        this.recordStack = new ARecordStack(this, {
+            account:        props.account,
+            region:         props.region,
+            recordId:       Constants.Route53.ARecord.Id,
+            domain:         Constants.SiteDomain,
+            hostedZone:     this.hostedZoneStack.hostedZone,
+            recordTarget:
+        });
 
     }
 

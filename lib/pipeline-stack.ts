@@ -1,12 +1,12 @@
 /**
- * clcuenca-dev pipeline stack. Defines the pipeline for the
- * CDK.
+ * Pipeline stack
  * @author Carlos L. Cuenca
- * @version 0.1.0
+ * @version 0.9.0
  */
 
-import { Construct, Stack, Stage } from '@aws-cdk/core'
-import { CodePipeline, ShellStep } from '@aws-cdk/pipelines'
+import { Construct } from 'constructs'
+import { Stage, Stack } from 'aws-cdk-lib'
+import { CodePipeline, ShellStep } from 'aws-cdk-lib/pipelines'
 import { Constants } from './constants'
 
 /// ----------
@@ -15,8 +15,8 @@ import { Constants } from './constants'
 export interface PipelineStackProps {
     account:    string,
     region:     string,
+    id:         string,
     stackId:    string,
-    pipelineId: string,
     shellStep:  ShellStep,
     stages:     Stage[]
 }
@@ -40,7 +40,7 @@ export class PipelineStack extends Stack {
             region:  props.region
         }});
 
-        this.pipeline = new CodePipeline(this, props.pipelineId, {
+        this.pipeline = new CodePipeline(this, props.id, {
             selfMutation:   Constants.CodePipeline.SelfMutate,
             synth:          props.shellStep
         });

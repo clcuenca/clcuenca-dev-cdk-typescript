@@ -1,13 +1,13 @@
 /**
- * Certificate Stack Implementation. Creates a Certificate
- * that validates a domain, and any wildcard subdomains the
- * corresponding HostedZone serves.
+ * Certificate Stack
  * @author Carlos L. Cuenca
- * @version 1.0.0
+ * @version 0.9.0
  */
 
-import { Construct, Stack } from '@aws-cdk/core'
-import { Certificate, CertificateValidation } from '@aws-cdk/acm'
+import { Construct } from 'constructs'
+import { Stack, Stage } from 'aws-cdk-lib'
+import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager'
+import { HostedZone } from 'aws-cdk-lib/aws-route53'
 
 /// ---------------------
 /// CertificateStackProps
@@ -15,8 +15,10 @@ import { Certificate, CertificateValidation } from '@aws-cdk/acm'
 export interface CertificateStackProps {
     account:        string,
     region:         string,
+    id:             string,
+    stackId:        string,
     domain:         string,
-    certificateId:  string
+    hostedZone:     HostedZone
 }
 
 /// -------------------------------
@@ -33,21 +35,17 @@ export class CertificateStack extends Stack {
     /// Constructors
 
     constructor(scope: Construct, props: CertificateStackProps) {
-        super(scope, props.certificateId, { env: {
+        super(scope, props.stackId, { env: {
             account: props.account,
             region:  props.region
         }});
 
         const wildcard = `*.${props.domain}`
 
-        this.certificate = new Certificate(this, props.certificateId, {
+        this.certificate = new Certificate(this, props.id, {
             domainName:                 props.domain,
             subjectAlternativeNames:    [wildcard],
-            validation:                 CertificateValidation.fromDnsMultiZone({
-                    props.domain:       props.domain,
-                    wildcard:           props.domain
-                });
-            
+            validation:                 CertificateValidation.fromDns(props.hostedZone)
         });
         
     }
@@ -56,7 +54,9 @@ export class CertificateStack extends Stack {
     /// Getters
 
     public get certificate() {
+
         return this.certificate;
+        
     }
 
 }

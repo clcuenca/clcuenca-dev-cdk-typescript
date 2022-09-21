@@ -1,12 +1,12 @@
 /**
- * A Record Stack implementation. Creates an A Record
- * that potentially points to a subdomain
+ * A Record Stack implementation
  * @author Carlos L. Cuenca
- * @version 1.0.0
+ * @version 0.9.0
  */
 
-import { Construct, Stack } from '@aws-cdk/core'
-import { ARecord, HostedZone, RecordTarget } from '@aws-cdk/route53'
+import { Construct } from 'constructs'
+import { Stage } from 'aws-cdk-lib'
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 
 /// -----------------
 /// ARecordStackProps
@@ -14,7 +14,8 @@ import { ARecord, HostedZone, RecordTarget } from '@aws-cdk/route53'
 export interface ARecordStackProps {
     account:        string,
     region:         string,
-    recordId:       string,
+    id:             string,
+    stackId:        string,
     domain:         string,
     hostedZone:     HostedZone,
     recordTarget:   RecordTarget
@@ -34,12 +35,12 @@ export class ARecordStack extends Stack {
     /// Constructors
 
     constructor(scope: Construct, props: ARecordStackProps) {
-        super(scope, props.certificateId, { env: {
+        super(scope, props.stackId, { env: {
             account: props.account,
             region:  props.region
         }});
 
-        this.record = new Record(this, props.recordId, {
+        this.record = new Record(this, props.id, {
             zone:       props.hostedZone,
             target:     props.recordTarget,
             recordName: props.domain

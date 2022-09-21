@@ -1,20 +1,22 @@
 /**
- * clcuenca.dev Hosted Zone Implementation.
+ * Hosted Zone Stack
  * @author Carlos L. Cuenca
- * @version 0.1.0
+ * @version 0.9.0
  */
 
-import { Construct, Stack } from '@aws-cdk/core'
-import { HostedZone } from '@aws-cdk/route53'
+import { Construct } from 'constructs'
+import { Stack, Stage } from 'aws-cdk-lib'
+import { HostedZone } from 'aws-cdk-lib/aws-route53'
 
 /// --------------------
 /// HostedZoneStackProps
 
 export interface HostedZoneStackProps {
-    account:                    string,
-    region:                     string,
-    hostedZoneId:               string,
-    zoneName:                   string,
+    account:    string,
+    region:     string,
+    id:         string,
+    stackId:    string,
+    zoneName:   string
 }
 
 /// ------------------------------
@@ -30,20 +32,22 @@ export class HostedZoneStack extends Stack {
     /// -----------
     /// Constructor
 
-    constructor(scope: Construct, props: PipelineStackProps) {
-        super(scope, props.hostedZoneId, { env: {
+    constructor(scope: Construct, props: HostedZoneStackProps) {
+        super(scope, props.stackId, { env: {
             account: props.account,
             region:  props.region
         }});
 
-        this.hostedZone = HostedZone.fromLookup(this, props.hostedZoneId, props.zoneName);
+        this.hostedZone = HostedZone.fromLookup(this, props.id, props.zoneName);
     }
 
     /// -------
     /// Getters
 
     public get hostedZone() {
+
         return this.hostedZone;
+        
     }
 
 }

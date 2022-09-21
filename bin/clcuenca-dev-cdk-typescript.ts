@@ -1,21 +1,46 @@
 #!/usr/bin/env node
+
+/**
+ * clcuenca.dev App file. Stiches the resources together.
+ * @author Carlos L. Cuenca
+ * @version 0.1.0
+ */
+
 import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { ClcuencaDevCdkTypescriptStack } from '../lib/clcuenca-dev-cdk-typescript-stack';
+import { App } from 'aws-cdk-lib'
+import { ShellStep } from 'aws-cdk-lib/pipelines'
+import { PipelineStack, PipelineStackProps } from './pipeline_stack'
+import { AlphaStage } from './alpha_stage'
+import { Constants } from './constants'
 
-const app = new cdk.App();
-new ClcuencaDevCdkTypescriptStack(app, 'ClcuencaDevCdkTypescriptStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
+const app = new App();
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const stages = [
+    new AlphaStage(app, {
+        account:    Constants.Account,
+        region:     Constants.Region,
+        stageId:    Constants.Stages.Alpha.Id,
+        stageName:  Constants.Stages.Alpha.Name
+    })];
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+new PipelineStack(app, {
+    account:    Constants.Account,
+    region:     Constants.Region,
+    stackId:    Constants.CodePipeline.StackId,
+    pipelineId: Constants.CodePipeline.Id,
+    shellStep:  new ShellStep(Constants.CodePipeline.ShellStep.Id, {
+        input:  CodePipelineSource.connection(Constants.CodeCommit.Repository, Constants.CodeCommit.Branches.Main, {
+            connectionArn: Constants.CodeCommit.Connection.Arn,
+        }),
+        commands: [
+            'npm install typescript',
+            'npx cdk synth',
+            'npx cdk deploy'
+        ],
+        primaryOutputDirectory: Constants.CodeCommit.PrimaryOutputDirectory
+    }),
+    stages: stages
 });
+
+app.synth();
+

@@ -5,7 +5,7 @@
  */
 
 import { Construct } from 'constructs'
-import { Stage } from 'aws-cdk-lib'
+import { Stage, Stack } from 'aws-cdk-lib'
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 
 /// -----------------
@@ -40,10 +40,10 @@ export class ARecordStack extends Stack {
             region:  props.region
         }});
 
-        this.record = new Record(this, props.id, {
+        this.record = new ARecord(this, props.id, {
             zone:       props.hostedZone,
-            target:     props.recordTarget,
-            recordName: props.domain
+            recordName: props.domain,
+            target:     props.recordTarget
         });
         
     }

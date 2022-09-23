@@ -5,14 +5,15 @@
  */
 
 import { Construct } from 'constructs'
-import { Stage } from 'aws-cdk-lib'
-import { Vpc, SubnetConfiguration } from 'aws-cdk-/aws-ec2'
-import { ApplicationLoadBalancedFargateService } from 'aws-cdk-/aws-ecs-patterns'
-import { AutoScalingGroup } from 'aws-cdk-/aws-autoscaling'
-import { Certificate } from 'aws-cdk-/aws-certificatemanaager'
-import { ApplicationProtocol } from 'aws-cdk-/aws-elasticloadbalancingv2'
-import { FargatePlatformVersion } from 'aws-cdk-/ecs'
-import { ServerlessCluster } from 'aws-cdk-/aws-rds'
+import { Stage, Stack } from 'aws-cdk-lib'
+import { Vpc, SubnetConfiguration } from 'aws-cdk-lib/aws-ec2'
+import { ApplicationLoadBalancedFargateService, ApplicationLoadBalancedTaskImageOptions } from 'aws-cdk-lib/aws-ecs-patterns'
+import { AutoScalingGroup } from 'aws-cdk-lib/aws-autoscaling'
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
+import { Cluster, FargatePlatformVersion } from 'aws-cdk-lib/aws-ecs'
+import { ServerlessCluster } from 'aws-cdk-lib/aws-rds'
+import { SubnetType, SubnetSelection } from 'aws-cdk-lib/aws-ec2'
 
 /// ------------------------------------------
 /// ApplicationLoadBalancedFargateServiceStack
@@ -22,11 +23,12 @@ export interface ApplicationLoadBalancedFargateServiceStackProps {
     region:                                             string,
     id:                                                 string,
     stackId:                                            string,
+    cpuScalingId:                                       string,
     protocol:                                           ApplicationProtocol,
     certificate:                                        Certificate,
     redirectHTTP:                                       boolean,
     platformVersion:                                    FargatePlatformVersion,
-    serverlessCluster:                                  ServerlessCluster,
+    cluster:                                            Cluster,
     taskSubnets:                                        SubnetSelection,
     cpu:                                                number,
     memoryLimit:                                        number,
@@ -62,33 +64,33 @@ export class ApplicationLoadBalancedFargateServiceStack extends Stack {
             region:  props.region
         }});
 
-        this.applicationLoadBalancedFargateService = new ApplicationLoadBalancer(this, props.id, {
+        this.applicationLoadBalancedFargateService = new ApplicationLoadBalancedFargateService(this, props.id, {
             protocol:           props.protocol,
             certificate:        props.certificate,
             redirectHTTP:       props.redirectHTTP,
             platformVersion:    props.platformVersion,
-            cluster:            props.serverlessCluster,
+            cluster:            props.cluster,
             taskSubnets:        props.taskSubnets,
             cpu:                props.cpu,
-            memoryLimit:        props.memoryLimit,
+            //memoryLimit:        props.memoryLimit, TODO
             desiredCount:       props.desiredCount,
-            publicLoadBalancer: props.hasPublicLoadBalancer
+            publicLoadBalancer: props.hasPublicLoadBalancer,
             vpc:                props.vpc,
         });
 
         this.applicationLoadBalancedFargateService.targetGroup.configureHealthCheck({
             enabled:                    props.configureHealthCheckEnabled,
             path:                       props.configureHealthCheckPath,
-            healthyThresholdCount:      configureHealthCheckHealthyThresholdCount,
-            unhealthyThresholdCount:    configureHealthCheckUnhealthyThresholdCount
+            healthyThresholdCount:      props.configureHealthCheckHealthyThresholdCount,
+            unhealthyThresholdCount:    props.configureHealthCheckUnhealthyThresholdCount
         });
 
         const scalableTarget = this.applicationLoadBalancedFargateService.service.autoScaleTaskCount({
-            minimumCapacity:    props.minimumTaskScalingCapacity,
-            maximumCapacity:    props.maximumTaskScalingCapacity
+            minCapacity:    props.minimumTaskScalingCapacity,
+            maxCapacity:    props.maximumTaskScalingCapacity
         });
 
-        scalableTarget.scaleOnCpuUtilization({
+        scalableTarget.scaleOnCpuUtilization(props.cpuScalingId, {
             targetUtilizationPercent: props.targetUtilizationPercent
         });
 
@@ -99,7 +101,7 @@ export class ApplicationLoadBalancedFargateServiceStack extends Stack {
 
     public get loadBalancer() {
 
-        return this.applicationLoadBalancer;
+        return this.applicationLoadBalancedFargateService.loadBalancer;
 
     }
 

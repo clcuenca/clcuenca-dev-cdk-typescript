@@ -27,7 +27,7 @@ export class HostedZoneStack extends Stack {
     /// ---------------
     /// Private Members
 
-    private readonly hostedZone: HostedZone  ;
+    private readonly _hostedZone: HostedZone  ;
 
     /// -----------
     /// Constructor
@@ -38,7 +38,7 @@ export class HostedZoneStack extends Stack {
             region:  props.region
         }});
 
-        this.hostedZone = HostedZone.fromLookup(this, props.id, props.zoneName);
+        this._hostedZone = HostedZone.fromLookup(this, props.id, props.zoneName);
     }
 
     /// -------
@@ -46,7 +46,7 @@ export class HostedZoneStack extends Stack {
 
     public get hostedZone() {
 
-        return this.hostedZone;
+        return this._hostedZone;
         
     }
 

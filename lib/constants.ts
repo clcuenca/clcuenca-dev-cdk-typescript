@@ -4,9 +4,9 @@
  * @version 0.9.0
  */
 
-import { ApplicationProtocol } from 'aws-cdk-/aws-elasticloadbalancingv2'
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 import { FargatePlatformVersion } from 'aws-cdk-lib/aws-ecs'
-import { SubnetType } from 'aws-cdk-/aws-ec2'
+import { SubnetType, SubnetSelection } from 'aws-cdk-lib/aws-ec2'
 
 export module Constants {
 
@@ -115,7 +115,7 @@ export module Constants {
             export const MemoryLimit            =   1024                                                ;
             export const DesiredCount           =   2                                                   ;
             export const HasPublicLoadBalancer  =   true                                                ;
-            export const TaskSubnets            =   SubnetSelection(SubnetType.PRIVATE_ISOLATED)        ;
+            export const TaskSubnets            =   new SubnetSelection(SubnetType.PRIVATE_ISOLATED)        ;
 
             /// ------------
             /// Target Group
@@ -141,11 +141,22 @@ export module Constants {
 
             export module ScalableTarget {
 
-                export const TargetUtilizationPercent       =   75          ;
-                export const MinimumTaskScalingCapacity     =   2           ;
-                export const MaximumTaskScalingCapacity     =   4           ;
+                export const CPUScalingId                   =   `${Id}CpuScaling`   ;
+                export const TargetUtilizationPercent       =   75                  ;
+                export const MinimumTaskScalingCapacity     =   2                   ;
+                export const MaximumTaskScalingCapacity     =   4                   ;
 
             }
+
+        }
+
+        /// -------
+        /// Cluster
+
+        export module Cluster {
+
+            export const Id         =   `${AppName}Cluster` ;
+            export const StackId    =   `${Id}Stack`        ;
 
         }
 

@@ -5,6 +5,7 @@
  */
 
 import { ApplicationProtocol } from 'aws-cdk-/aws-elasticloadbalancingv2'
+import { FargatePlatformVersion } from 'aws-cdk-lib/aws-ecs'
 import { SubnetType } from 'aws-cdk-/aws-ec2'
 
 export module Constants {
@@ -107,13 +108,14 @@ export module Constants {
 
             export const Id                     =   `${AppName}ApplicationLoadBalancedFargateService`   ;
             export const StackId                =   `${Id}Stack`                                        ;
-            export const Protocol               =                                                       ;
-            export const RedirectHTTP           =                                                       ;
-            export const PlatformVersion        =                                                       ;
-            export const CPUs                   =                                                       ;
-            export const MemoryLimit            =                                                       ;
-            export const DesiredCount           =                                                       ;
+            export const Protocol               =   ApplicationProtocol.HTTPS                           ;
+            export const RedirectHTTP           =   true                                                ;
+            export const PlatformVersion        =   FargatePlatformVersion.VERSION1_4                   ;
+            export const CPUs                   =   256                                                 ;
+            export const MemoryLimit            =   1024                                                ;
+            export const DesiredCount           =   2                                                   ;
             export const HasPublicLoadBalancer  =   true                                                ;
+            export const TaskSubnets            =   SubnetSelection(SubnetType.PRIVATE_ISOLATED)        ;
 
             /// ------------
             /// Target Group
@@ -140,8 +142,8 @@ export module Constants {
             export module ScalableTarget {
 
                 export const TargetUtilizationPercent       =   75          ;
-                export const MinimumTaskScalingCapacity     =   75          ;
-                export const MaximumTaskScalingCapacity     =   75          ;
+                export const MinimumTaskScalingCapacity     =   2           ;
+                export const MaximumTaskScalingCapacity     =   4           ;
 
             }
 

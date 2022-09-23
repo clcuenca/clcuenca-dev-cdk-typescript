@@ -31,11 +31,11 @@ export class AlphaStage extends Stage {
     /// ---------------
     /// Private Members
 
-    private readonly hostedZoneStack:               HostedZoneStack                 ;
-    private readonly certificateStack:              CertificateStack                ;
-    private readonly recordStack:                   ARecordStack                    ;
-    private readonly vpcStack:                      VpcStack                        ;
-    private readonly applicationLoadBalancerStack:  ApplicationLoadBalancerStack    ;
+    private readonly hostedZoneStack:               HostedZoneStack                                 ;
+    private readonly certificateStack:              CertificateStack                                ;
+    private readonly recordStack:                   ARecordStack                                    ;
+    private readonly vpcStack:                      VpcStack                                        ;
+    private readonly applicationLoadBalancerStack:  ApplicationLoadBalancedFargateServiceStack      ;
 
     /// -----------
     /// Constructor
@@ -101,19 +101,29 @@ export class AlphaStage extends Stage {
             ]
         });
 
-        this.applicationLoadBalancerStack = new ApplicationLoadBalancerStack(this, {
-            account:                props.account,
-            region:                 props.region,
-            id:                     Constants.ElasticLoadBalancing.ApplicationLoadBalancer.Id,
-            stackId:                Constants.ElasticLoadBalancing.ApplicationLoadBalancer.StackId,
-            listenerId:             Constants.ElasticLoadBalancing.ApplicationLoadBalancer.ListenerId,
-            internetFacing:         Constants.ElasticLoadBalancing.ApplicationLoadBalancer.InternetFacing,
-            doesListen:             Constants.ElasticLoadBalancing.ApplicationLoadBalancer.Listens,
-            http2Enabled:           Constants.ElasticLoadBalancing.ApplicationLoadBalancer.EnableHttp2,
-            vpcSubnets:             this.vpcStack.publicSubnets,
-            autoscalingGroups:      // Insert ASG here
-            autoscalingGroupPort:   Constants.AutoscalingGroup.Port,
-            vpc:                    this.vpcStack.vpc
+        this.applicationLoadBalancerStack = new ApplicationLoadBalancedFargateServiceStack(this, {
+            account:                                        props.account,
+            region:                                         props.region,
+            id:                                             Constants.ApplicationLoadBalancedFargateService.Id,
+            stackId:                                        Constants.ApplicationLoadBalancedFargateService.StackId,
+            protocol:                                       Constants.ApplicationLoadBalancedFargateService.Protocol,
+            certificate:                                    this.certificateStack.certificate,    
+            redirectHTTP:                                   Constants.ApplicationLoadBalancedFargateService.RedirectHTTP,    
+            platformVersion:                                Constants.ApplicationLoadBalancedFargateService.PlatformVersion,    
+            serverlessCluster:                                  
+            taskSubnets:                                    Constants.ApplicationLoadBalancedFargateService.TaskSubnets,    
+            cpu:                                            Constants.ApplicationLoadBalancedFargateService.CPUs,    
+            memoryLimit:                                    Constants.ApplicationLoadBalancedFargateService.MemoryLimit,    
+            desiredCount:                                   Constants.ApplicationLoadBalancedFargateService.DesiredCount,    
+            taskImageOptions:                               // Docker Image here    
+            hasPublicLoadBalancer:                          Constants.ApplicationLoadBalancedFargateService.HasPublicLoadBalancer,
+            minimumTaskScalingCapacity:                     Constants.ApplicationLoadBalancedFargateService.ScalableTarget.MinimumScalingCapacity,    
+            maximumTaskScalingCapacity:                     Constants.ApplicationLoadBalancedFargateService.ScalableTarget.MaximumScalingCapacity,    
+            targetUtilizationPercent:                       Constants.ApplicationLoadBalancedFargateService.ScalableTarget.TargetUtilizationPercent,    
+            configureHealthCheckEnabled:                    Constants.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.Enabled,    
+            configureHealthCheckPath:                       Constants.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.Path,    
+            configureHealthCheckHealthyThresholdCount:      Constants.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.HealthyThresholdCount,    
+            configureHealthCheckUnhealthyThresholdCount:    Constants.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.UnhealthyThresholdCount,
         });
 
         this.recordStack = new ARecordStack(this, {

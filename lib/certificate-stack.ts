@@ -29,7 +29,7 @@ export class CertificateStack extends Stack {
     /// ---------------
     /// Private Members
 
-    private readonly certificate: Certificate;
+    private readonly _certificate: Certificate;
 
     /// ------------
     /// Constructors
@@ -42,7 +42,7 @@ export class CertificateStack extends Stack {
 
         const wildcard = `*.${props.domain}`
 
-        this.certificate = new Certificate(this, props.id, {
+        this._certificate = new Certificate(this, props.id, {
             domainName:                 props.domain,
             subjectAlternativeNames:    [wildcard],
             validation:                 CertificateValidation.fromDns(props.hostedZone)
@@ -55,7 +55,7 @@ export class CertificateStack extends Stack {
 
     public get certificate() {
 
-        return this.certificate;
+        return this._certificate;
         
     }
 

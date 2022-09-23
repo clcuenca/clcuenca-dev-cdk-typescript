@@ -16,7 +16,7 @@ export interface HostedZoneStackProps {
     region:     string,
     id:         string,
     stackId:    string,
-    zoneName:   string
+    domainName: string
 }
 
 /// ------------------------------
@@ -38,7 +38,9 @@ export class HostedZoneStack extends Stack {
             region:  props.region
         }});
 
-        this._hostedZone = HostedZone.fromLookup(this, props.id, props.zoneName);
+        this._hostedZone = HostedZone.fromLookup(this, props.id, {
+            domainName: props.domainName
+        }) as HostedZone;
     }
 
     /// -------

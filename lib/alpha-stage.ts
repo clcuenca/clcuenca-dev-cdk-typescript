@@ -77,7 +77,7 @@ export class AlphaStage extends Stage {
             region:     props.region,
             id:         Constants.Route53.HostedZone.Id,
             stackId:    Constants.Route53.HostedZone.StackId,
-            zoneName:   Constants.Domain
+            domainName: Constants.Domain
         });
 
         this.certificateStack = new CertificateStack(this, {

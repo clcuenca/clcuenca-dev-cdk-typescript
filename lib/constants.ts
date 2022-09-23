@@ -21,7 +21,7 @@ export module Constants {
     export const SourceDirectory    =   'lib/'              ;
     export const DockerDirectory    =   'docker/'           ;
     export const ContainerName      =   'app'               ;
-    export const ContainerPort      =   8000                ;
+    export const ContainerPort      =   8080                ;
 
     /// ------
     /// Stages

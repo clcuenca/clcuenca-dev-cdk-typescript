@@ -106,7 +106,7 @@ export class AlphaStage extends Stage {
         const taskImageOptions = {
                 image:              ContainerImage.fromAsset(Constants.SourceDirectory, {
                         file:       `${Constants.DockerDirectory}/${Constants.Docker.DevelopmentFile}`,
-                        target:     Constants.Stages.Alpha.Id
+                        target:     'base'
                     }
                 ),
                 container_name: Constants.ContainerName,

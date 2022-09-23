@@ -2,9 +2,7 @@ FROM ubuntu as base
 
 RUN apt-get update \        
      apt-get install -y git
-RUN mkdir /usr/src/app \      
-           cd /usr/src/app \        
-           git clone https://github.com/clcuenca/clcuenca-dev.git
+RUN git clone https://github.com/clcuenca/clcuenca-dev.git
 
 # Create app directory
 WORKDIR /usr/src/app

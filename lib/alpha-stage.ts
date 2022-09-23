@@ -54,24 +54,6 @@ export class AlphaStage extends Stage {
             region:     props.region
         }});
 
-        this.cognitoStack = new CognitoStack(this, {
-            account:                        props.account,
-            region:                         props.region, 
-            id:                             Constants.Cognito.Id,
-            stackId:                        Constants.Cognito.StackId,
-            userPoolId:                     Constants.Cognito.UserPool.Id,
-            identityPoolId:                 Constants.Cognito.IdentityPool.Id,
-            identityProviderId:             Constants.Cognito.IdentityProviderId,
-            userPoolClientId:               Constants.Cognito.UserPool.ClientId,
-            selfSignUpEnabled:              Constants.Cognito.UserPool.SelfSignUpEnabled,
-            enableAliasUsername:            Constants.Cognito.UserPool.SignInAliases.EnableUserName,
-            enableAliasEmail:               Constants.Cognito.UserPool.SignInAliases.EnableEmail,
-            fullnameRequired:               Constants.Cognito.UserPool.StandardAttributes.FullName.Required,
-            fullnameMutable:                Constants.Cognito.UserPool.StandardAttributes.FullName.Mutable,
-            passwordMinimumLength:          Constants.Cognito.UserPool.PasswordPolicy.MinimumLength,
-            allowUnauthenticatedIdentities: Constants.Cognito.IdentityPool.AllowUnauthenticatedIdentities
-        });
-
         this.hostedZoneStack = new HostedZoneStack(this, {
             account:    props.account,
             region:     props.region,
@@ -101,9 +83,14 @@ export class AlphaStage extends Stage {
             enableDnsSupport:       Constants.EC2.VPC.EnableDNSSupport,
             subnetConfiguration:    [
                 {
-                    cidrMask:       Constants.EC2.VPC.SubnetConfiguration.SubnetCIDRMask,
-                    name:           Constants.EC2.VPC.SubnetConfiguration.SubnetName,
-                    subnetType:     Constants.EC2.VPC.SubnetConfiguration.Type
+                    name:           Constants.EC2.VPC.Subnet.Public.Configuration.Name,
+                    cidrMask:       Constants.EC2.VPC.Subnet.Public.Configuration.CIDRMask,
+                    subnetType:     Constants.EC2.VPC.Subnet.Public.Configuration.Type
+                },       
+                {
+                    name:           Constants.EC2.VPC.Subnet.Private.Configuration.Name,
+                    cidrMask:       Constants.EC2.VPC.Subnet.Private.Configuration.CIDRMask,
+                    subnetType:     Constants.EC2.VPC.Subnet.Private.Configuration.Type
                 }
             ]
         });
@@ -117,7 +104,7 @@ export class AlphaStage extends Stage {
         });
 
         const taskImageOptions = {
-                image:              ContainerImage.fromAsset('app/', {
+                image:              ContainerImage.fromAsset(Constants.SourceDirectory, {
                         file:       'docker/Dockerfile',
                         target:     'alpha'
                     }
@@ -138,7 +125,7 @@ export class AlphaStage extends Stage {
             redirectHTTP:                                   Constants.ECS.ApplicationLoadBalancedFargateService.RedirectHTTP,    
             platformVersion:                                Constants.ECS.ApplicationLoadBalancedFargateService.PlatformVersion,    
             cluster:                                        this.clusterStack.cluster,
-            taskSubnets:                                    Constants.ECS.ApplicationLoadBalancedFargateService.TaskSubnets,    
+            taskSubnetType:                                 Constants.ECS.ApplicationLoadBalancedFargateService.TaskSubnetType,    
             cpu:                                            Constants.ECS.ApplicationLoadBalancedFargateService.CPUs,    
             memoryLimit:                                    Constants.ECS.ApplicationLoadBalancedFargateService.MemoryLimit,    
             desiredCount:                                   Constants.ECS.ApplicationLoadBalancedFargateService.DesiredCount,    

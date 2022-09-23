@@ -6,18 +6,20 @@
 
 import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2'
 import { FargatePlatformVersion } from 'aws-cdk-lib/aws-ecs'
-import { SubnetType, SubnetSelection } from 'aws-cdk-lib/aws-ec2'
+import { SubnetType } from 'aws-cdk-lib/aws-ec2'
 
 export module Constants {
 
     /// ---
     /// App
 
-    export const Account    =   '669680791620'      ;
-    export const Region     =   'us-east-1'         ;
-    export const AppName    =   'clcuenca-dev'      ;
-    export const Domain     =   'clcuenca.dev'      ;
-    export const SiteDomain =   `site.${Domain}`    ;
+    export const Account            =   '669680791620'      ;
+    export const Region             =   'us-east-1'         ;
+    export const AppName            =   'clcuenca-dev'      ;
+    export const Domain             =   'clcuenca.dev'      ;
+    export const SiteDomain         =   `site.${Domain}`    ;
+    export const SourceDirectory    =   'lib/'              ;
+    export const DockerDirectory    =   'docker/'           ;
 
     /// ------
     /// Stages
@@ -63,112 +65,14 @@ export module Constants {
 
     }
 
-    /// ---
-    /// EC2
-
-    export module EC2 {
-        
-        /// ---
-        /// VPC
-
-        export module VPC {
-            
-            export const Id                 =   `${AppName}VPC`     ;
-            export const StackId            =   `${Id}Stack`        ;
-            export const CIDR               =   '10.0.0.0/16'       ;
-            export const MaxAZs             =   2                   ;
-            export const NATGateways        =   0                   ;
-            export const EnableDNSHostNames =   true                ;
-            export const EnableDNSSupport   =   true                ;
-
-            /// --------------------
-            /// Subnet Configuration
-
-            export module SubnetConfiguration {
-
-                export const SubnetName         = `${Constants.EC2.VPC.Id}Subnet`   ;
-                export const SubnetCIDRMask     =   24                              ;
-                export const Type               =   SubnetType.PRIVATE_ISOLATED             ;
-
-            }
-
-        }
-
-    }
-
-    /// ---
-    /// ECS
-
-    export module ECS {
-
-        /// -----------------------------------------
-        /// Application Load Balanced Fargate Service
-
-        export module ApplicationLoadBalancedFargateService {
-
-            export const Id                     =   `${AppName}ApplicationLoadBalancedFargateService`   ;
-            export const StackId                =   `${Id}Stack`                                        ;
-            export const Protocol               =   ApplicationProtocol.HTTPS                           ;
-            export const RedirectHTTP           =   true                                                ;
-            export const PlatformVersion        =   FargatePlatformVersion.VERSION1_4                   ;
-            export const CPUs                   =   256                                                 ;
-            export const MemoryLimit            =   1024                                                ;
-            export const DesiredCount           =   2                                                   ;
-            export const HasPublicLoadBalancer  =   true                                                ;
-            export const TaskSubnets            =   new SubnetSelection(SubnetType.PRIVATE_ISOLATED)        ;
-
-            /// ------------
-            /// Target Group
-
-            export module TargetGroup {
-
-                /// ----------------------
-                /// Configure Health Check
-
-                export module ConfigureHealthCheck {
-
-                    export const Enabled                    =   true        ;
-                    export const Path                       =   '/status/'  ;
-                    export const HealthyThresholdCount      =   3           ;
-                    export const UnhealthyThresholdCount    =   2           ;
-
-                }
-
-            }
-
-            /// ---------------
-            /// Scalable Target
-
-            export module ScalableTarget {
-
-                export const CPUScalingId                   =   `${Id}CpuScaling`   ;
-                export const TargetUtilizationPercent       =   75                  ;
-                export const MinimumTaskScalingCapacity     =   2                   ;
-                export const MaximumTaskScalingCapacity     =   4                   ;
-
-            }
-
-        }
-
-        /// -------
-        /// Cluster
-
-        export module Cluster {
-
-            export const Id         =   `${AppName}Cluster` ;
-            export const StackId    =   `${Id}Stack`        ;
-
-        }
-
-    }
 
     /// -----------
     /// Code Commit
 
     export module CodeCommit {
 
-        export const Repository             = 'clcuenca-dev-cdk-typescript' ;
-        export const PrimaryOutputDirectory = 'cdk.out'                     ;
+        export const Repository             = 'clcuenca/clcuenca-dev-cdk-typescript'    ;
+        export const PrimaryOutputDirectory = 'cdk.out'                                 ;
 
         /// --------
         /// Branches
@@ -184,7 +88,7 @@ export module Constants {
 
         export module Connection {
 
-            export const Arn = 'arn:aws:codestar-connections:us-east-1:669680791620:connection/7d2469ff-514a-4e4f-9003-5ca4a43cdc41';
+            export const Arn = 'arn:aws:codestar-connections:us-east-1:669680791620:connection/166720bd-5b2f-48b6-a19e-df927f6a6295';
 
         }
 
@@ -314,6 +218,137 @@ export module Constants {
                 export const AllowActions = [];
 
             }
+
+        }
+
+    }
+
+    /// ---
+    /// EC2
+
+    export module EC2 {
+        
+        /// ---
+        /// VPC
+
+        export module VPC {
+            
+            export const Id                 =   `${AppName}VPC`     ;
+            export const StackId            =   `${Id}Stack`        ;
+            export const CIDR               =   '10.0.0.0/16'       ;
+            export const MaxAZs             =   2                   ;
+            export const NATGateways        =   0                   ;
+            export const EnableDNSHostNames =   true                ;
+            export const EnableDNSSupport   =   true                ;
+
+            /// ------
+            /// Subnet
+
+            export module Subnet {
+
+                /// -------
+                /// Private
+
+                export module Private {
+
+                    /// -------------
+                    /// Configuration
+
+                    export module Configuration {
+
+                        export const Name       =   `${Constants.EC2.VPC.Id}PrivateSubnet`      ;
+                        export const CIDRMask   =   22                                          ;
+                        export const Type       =   SubnetType.PRIVATE_ISOLATED                 ;
+
+                    }
+
+                }
+
+                /// ------
+                /// Public
+
+                export module Public {
+
+                    /// -------------
+                    /// Configuration
+
+                    export module Configuration {
+
+                        export const Name       =   `${Constants.EC2.VPC.Id}PublicSubnet`       ;
+                        export const CIDRMask   =   22                                          ;
+                        export const Type       =   SubnetType.PUBLIC                           ;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    /// ---
+    /// ECS
+
+    export module ECS {
+
+        /// -----------------------------------------
+        /// Application Load Balanced Fargate Service
+
+        export module ApplicationLoadBalancedFargateService {
+
+            export const Id                     =   `${AppName}ApplicationLoadBalancedFargateService`   ;
+            export const StackId                =   `${Id}Stack`                                        ;
+            export const Protocol               =   ApplicationProtocol.HTTPS                           ;
+            export const RedirectHTTP           =   true                                                ;
+            export const PlatformVersion        =   FargatePlatformVersion.VERSION1_4                   ;
+            export const CPUs                   =   256                                                 ;
+            export const MemoryLimit            =   1024                                                ;
+            export const DesiredCount           =   2                                                   ;
+            export const HasPublicLoadBalancer  =   true                                                ;
+            export const TaskSubnetType         =   SubnetType.PRIVATE_ISOLATED                         ;
+
+            /// ------------
+            /// Target Group
+
+            export module TargetGroup {
+
+                /// ----------------------
+                /// Configure Health Check
+
+                export module ConfigureHealthCheck {
+
+                    export const Enabled                    =   true        ;
+                    export const Path                       =   '/status/'  ;
+                    export const HealthyThresholdCount      =   3           ;
+                    export const UnhealthyThresholdCount    =   2           ;
+
+                }
+
+            }
+
+            /// ---------------
+            /// Scalable Target
+
+            export module ScalableTarget {
+
+                export const CPUScalingId                   =   `${Id}CpuScaling`   ;
+                export const TargetUtilizationPercent       =   75                  ;
+                export const MinimumTaskScalingCapacity     =   2                   ;
+                export const MaximumTaskScalingCapacity     =   4                   ;
+
+            }
+
+        }
+
+        /// -------
+        /// Cluster
+
+        export module Cluster {
+
+            export const Id         =   `${AppName}Cluster` ;
+            export const StackId    =   `${Id}Stack`        ;
 
         }
 

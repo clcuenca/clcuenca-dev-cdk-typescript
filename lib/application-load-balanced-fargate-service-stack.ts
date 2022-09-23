@@ -29,7 +29,7 @@ export interface ApplicationLoadBalancedFargateServiceStackProps {
     redirectHTTP:                                       boolean,
     platformVersion:                                    FargatePlatformVersion,
     cluster:                                            Cluster,
-    taskSubnets:                                        SubnetSelection,
+    taskSubnetType:                                     SubnetType,
     cpu:                                                number,
     memoryLimit:                                        number,
     desiredCount:                                       number,
@@ -70,12 +70,14 @@ export class ApplicationLoadBalancedFargateServiceStack extends Stack {
             redirectHTTP:       props.redirectHTTP,
             platformVersion:    props.platformVersion,
             cluster:            props.cluster,
-            taskSubnets:        props.taskSubnets,
+            taskSubnets:        {
+                subnetType:     props.taskSubnetType
+            },
             cpu:                props.cpu,
-            //memoryLimit:        props.memoryLimit, TODO
+            memoryLimitMiB:     props.memoryLimit,
             desiredCount:       props.desiredCount,
-            publicLoadBalancer: props.hasPublicLoadBalancer,
-            vpc:                props.vpc,
+            taskImageOptions:   props.taskImageOptions,
+            publicLoadBalancer: props.hasPublicLoadBalancer
         });
 
         this.applicationLoadBalancedFargateService.targetGroup.configureHealthCheck({

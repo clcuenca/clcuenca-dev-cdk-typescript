@@ -20,6 +20,8 @@ export module Constants {
     export const SiteDomain         =   `site.${Domain}`    ;
     export const SourceDirectory    =   'lib/'              ;
     export const DockerDirectory    =   'docker/'           ;
+    export const ContainerName      =   'app'               ;
+    export const ContainerPort      =   8000                ;
 
     /// ------
     /// Stages
@@ -35,6 +37,15 @@ export module Constants {
             export const Id     =   `${Name}Stage`  ;
 
         }
+
+    }
+
+    /// ------
+    /// Docker
+
+    export module Docker {
+
+        export const DevelopmentFile = 'Dockerfile'
 
     }
 

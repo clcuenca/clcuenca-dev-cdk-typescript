@@ -105,12 +105,12 @@ export class AlphaStage extends Stage {
 
         const taskImageOptions = {
                 image:              ContainerImage.fromAsset(Constants.SourceDirectory, {
-                        file:       'docker/Dockerfile',
-                        target:     'alpha'
+                        file:       `${Constants.DockerDirectory}/${Constants.Docker.DevelopmentFile}`,
+                        target:     Constants.Stages.Alpha.Id
                     }
                 ),
-                container_name: 'app',
-                container_port: 8000
+                container_name: Constants.ContainerName,
+                container_port: Constants.ContainerPort
                 //environment: { Evironment Variables }
             };
 

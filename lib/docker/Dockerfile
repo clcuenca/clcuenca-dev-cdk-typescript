@@ -1,20 +1,28 @@
-FROM node:16 as base
+FROM ubuntu as base
+
+RUN apt-get update \        
+     apt-get install -y git
+RUN mkdir /usr/src/app \      
+           cd /usr/src/app \        
+           git clone https://github.com/clcuenca/clcuenca-dev.git
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
+
 # where available (npm@5+)
-COPY package*.json ./
+#COPY package*.json ./
 
 RUN npm install
+
 # If you are building your code for production
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+#COPY . .
 
 EXPOSE 8080
 
-CMD [ "node", "server.js" ]
+CMD [ bin/www" ]

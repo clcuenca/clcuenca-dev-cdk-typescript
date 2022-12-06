@@ -1,8 +1,8 @@
 FROM ubuntu as base
 
 RUN apt-get update
-RUN mkdir /usr/src/app \      
-           cd /usr/src/app \        
+RUN mkdir /usr/src/app && \      
+           cd /usr/src/app && \        
            git clone https://github.com/clcuenca/clcuenca-dev.git
 
 # Create app directory

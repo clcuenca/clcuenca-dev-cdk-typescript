@@ -1,7 +1,7 @@
 FROM ubuntu as base
 
 RUN apt-get update
-RUN apt-get install git
+RUN apt-get install -y git
 RUN mkdir /usr/src/app && \      
            cd /usr/src/app && \        
            git clone https://github.com/clcuenca/clcuenca-dev.git

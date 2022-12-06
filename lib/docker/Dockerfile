@@ -13,7 +13,6 @@ RUN apt-get update && \
     mkdir /usr/src/app && \      
     cd /usr/src/app && \        
     git clone https://github.com/clcuenca/clcuenca-dev.git && \
-    rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /usr/src/app

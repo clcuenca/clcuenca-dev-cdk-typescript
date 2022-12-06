@@ -12,7 +12,7 @@ RUN apt-get update && \
     apt-get install -y nodejs npm && \
     mkdir /usr/src/app && \      
     cd /usr/src/app && \        
-    git clone https://github.com/clcuenca/clcuenca-dev.git && \
+    git clone https://github.com/clcuenca/clcuenca-dev.git
 
 # Create app directory
 WORKDIR /usr/src/app

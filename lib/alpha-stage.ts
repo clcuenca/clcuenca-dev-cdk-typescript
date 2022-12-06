@@ -54,6 +54,16 @@ export class AlphaStage extends Stage {
             region:     props.region
         }});
 
+        const taskImageOptions = {
+                image:              ContainerImage.fromAsset(Constants.SourceDirectory, {
+                        file:       `${Constants.DockerDirectory}/${Constants.Docker.DevelopmentFile}`,
+                        target:     'base'
+                    }
+                ),
+                container_name: Constants.ContainerName,
+                container_port: Constants.ContainerPort
+            };
+
         this.hostedZoneStack = new HostedZoneStack(this, {
             account:    props.account,
             region:     props.region,
@@ -103,46 +113,32 @@ export class AlphaStage extends Stage {
             vpc:            this.vpcStack.vpc
         });
 
-        const taskImageOptions = {
-                image:              ContainerImage.fromAsset(Constants.SourceDirectory, {
-                        file:       `${Constants.DockerDirectory}/${Constants.Docker.DevelopmentFile}`,
-                        target:     'base'
-                    }
-                ),
-                container_name: Constants.ContainerName,
-                container_port: Constants.ContainerPort
-                //environment: { Evironment Variables }
-            };
-
         this.applicationLoadBalancerStack = new ApplicationLoadBalancedFargateServiceStack(this, {
             account:                                        props.account,
             region:                                         props.region,
+            taskImageOptions:                               taskImageOptions,
+            vpc:                                            this.vpcStack.vpc,
+            certificate:                                    this.certificateStack.certificate,
+            cluster:                                        this.clusterStack.cluster,
             id:                                             Constants.ECS.ApplicationLoadBalancedFargateService.Id,
             cpuScalingId:                                   Constants.ECS.ApplicationLoadBalancedFargateService.ScalableTarget.CPUScalingId,
             stackId:                                        Constants.ECS.ApplicationLoadBalancedFargateService.StackId,
             protocol:                                       Constants.ECS.ApplicationLoadBalancedFargateService.Protocol,
-            certificate:                                    this.certificateStack.certificate,    
-            redirectHTTP:                                   Constants.ECS.ApplicationLoadBalancedFargateService.RedirectHTTP,    
-            platformVersion:                                Constants.ECS.ApplicationLoadBalancedFargateService.PlatformVersion,    
-            cluster:                                        this.clusterStack.cluster,
-            taskSubnetType:                                 Constants.ECS.ApplicationLoadBalancedFargateService.TaskSubnetType,    
-            cpu:                                            Constants.ECS.ApplicationLoadBalancedFargateService.CPUs,    
-            memoryLimit:                                    Constants.ECS.ApplicationLoadBalancedFargateService.MemoryLimit,    
-            desiredCount:                                   Constants.ECS.ApplicationLoadBalancedFargateService.DesiredCount,    
-            taskImageOptions:                               taskImageOptions, 
+            redirectHTTP:                                   Constants.ECS.ApplicationLoadBalancedFargateService.RedirectHTTP,
+            platformVersion:                                Constants.ECS.ApplicationLoadBalancedFargateService.PlatformVersion,
+            taskSubnetType:                                 Constants.ECS.ApplicationLoadBalancedFargateService.TaskSubnetType,
+            cpu:                                            Constants.ECS.ApplicationLoadBalancedFargateService.CPUs,
+            memoryLimit:                                    Constants.ECS.ApplicationLoadBalancedFargateService.MemoryLimit,
+            desiredCount:                                   Constants.ECS.ApplicationLoadBalancedFargateService.DesiredCount,
             hasPublicLoadBalancer:                          Constants.ECS.ApplicationLoadBalancedFargateService.HasPublicLoadBalancer,
             minimumTaskScalingCapacity:                     Constants.ECS.ApplicationLoadBalancedFargateService.ScalableTarget.MinimumTaskScalingCapacity,    
             maximumTaskScalingCapacity:                     Constants.ECS.ApplicationLoadBalancedFargateService.ScalableTarget.MaximumTaskScalingCapacity,    
-            targetUtilizationPercent:                       Constants.ECS.ApplicationLoadBalancedFargateService.ScalableTarget.TargetUtilizationPercent,    
+            targetUtilizationPercent:                       Constants.ECS.ApplicationLoadBalancedFargateService.ScalableTarget.TargetUtilizationPercent,  
             configureHealthCheckEnabled:                    Constants.ECS.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.Enabled,    
             configureHealthCheckPath:                       Constants.ECS.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.Path,    
             configureHealthCheckHealthyThresholdCount:      Constants.ECS.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.HealthyThresholdCount,    
-            configureHealthCheckUnhealthyThresholdCount:    Constants.ECS.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.UnhealthyThresholdCount,
-            vpc:                                            this.vpcStack.vpc
+            configureHealthCheckUnhealthyThresholdCount:    Constants.ECS.ApplicationLoadBalancedFargateService.TargetGroup.ConfigureHealthCheck.UnhealthyThresholdCount
         });
-
-        const ARecordTarget = RecordTarget.fromAlias(
-            new LoadBalancerTarget(this.applicationLoadBalancerStack.loadBalancer));
 
         this.recordStack = new ARecordStack(this, {
             account:        props.account,
@@ -151,7 +147,8 @@ export class AlphaStage extends Stage {
             stackId:        Constants.Route53.ARecord.StackId,
             domain:         Constants.SiteDomain,
             hostedZone:     this.hostedZoneStack.hostedZone,
-            recordTarget:   ARecordTarget
+            recordTarget:   RecordTarget.fromAlias(
+                                new LoadBalancerTarget(this.applicationLoadBalancerStack.loadBalancer))
         });
 
     }

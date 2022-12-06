@@ -1,20 +1,22 @@
 FROM ubuntu as base
 
-RUN apt-get update
-RUN apt-get install -y git
-RUN mkdir /usr/src/app && \      
-           cd /usr/src/app && \        
-           git clone https://github.com/clcuenca/clcuenca-dev.git
+RUN apt-get update && \
+    apt-get install -y build-essential && \
+    apt-get install -y software-properties-common && \
+    apt-get install -y byobu curl git htop man unzip vim wget && \
+    mkdir /usr/src/app && \      
+    cd /usr/src/app && \        
+    git clone https://github.com/clcuenca/clcuenca-dev.git && \
+    rm -rf /var/lib/apt/lists/* && \
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
-
 # where available (npm@5+)
-#COPY package*.json ./
 
+COPY package*.json ./
 RUN npm install
 
 # If you are building your code for production

@@ -9,6 +9,7 @@ RUN apt-get update && \
     apt-get install -y build-essential && \
     apt-get install -y software-properties-common && \
     apt-get install -y byobu curl git htop man unzip vim wget && \
+    apt-get install -y nodejs npm && \
     mkdir /usr/src/app && \      
     cd /usr/src/app && \        
     git clone https://github.com/clcuenca/clcuenca-dev.git && \

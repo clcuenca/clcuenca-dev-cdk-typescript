@@ -18,8 +18,7 @@ RUN apt-get update && \
 WORKDIR /usr/src/app
 
 # Install Dependencies
-cd clcuenca-dev
-RUN npm install
+RUN cd clcuenca-dev && npm install
 
 # If you are building your code for production
 # RUN npm ci --only=production

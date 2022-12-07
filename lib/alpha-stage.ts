@@ -112,7 +112,7 @@ export class AlphaStage extends Stage {
             stackId:        Constants.ECS.Cluster.StackId,
             vpc:            this.vpcStack.vpc
         });
-
+        // Comment
         this.applicationLoadBalancerStack = new ApplicationLoadBalancedFargateServiceStack(this, {
             account:                                        props.account,
             region:                                         props.region,
